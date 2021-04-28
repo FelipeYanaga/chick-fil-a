@@ -25,7 +25,7 @@ public class UncResource {
         @Produces(MediaType.APPLICATION_JSON)
         public List<Dish> getList() throws IOException{
             Scraper scraper = new Scraper();
-            return scraper.unc();
+            return scraper.getDishes();
         }
 
         public UncResource(){}
