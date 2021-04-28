@@ -23,11 +23,11 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Scraper{
+    private Map<String, Dish> dishes = new HashMap<String, Dish>();
 
     public String[] test (String item) throws IOException {
 
@@ -56,6 +56,33 @@ public class Scraper{
 
         return s;
 
+    }
+
+    public List<Dish> unc() throws IOException{
+        String url = "https://dining.unc.edu/locations/chase/?date=2021-04-27";
+        HttpClient client = HttpClientBuilder.create().build();
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(1000).setConnectTimeout(1000).setSocketTimeout(1000).build();
+        HttpGet get = new HttpGet(url);
+        get.setConfig(requestConfig);
+        HttpResponse response = client.execute(get);
+
+        String content = new BufferedReader(new InputStreamReader(response.getEntity().getContent())).lines().parallel()
+                .collect(Collectors.joining("\n"));
+
+        Document doc = Jsoup.parse(content);
+        Elements links = doc.getElementsByAttribute("data-searchable");
+
+        List<Dish> list = new ArrayList<>();
+
+        for (Element link : links){
+            String ingredients = link.attr("data-searchable");
+            String ingredientName = link.selectFirst("a").text();
+            dishes.put(ingredientName,Dish.of(ingredientName, ingredients));
+            list.add(Dish.of(ingredientName, ingredients));
+        }
+
+        return list;
     }
 
 }

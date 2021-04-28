@@ -1,0 +1,57 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Yanaga's Truth Table Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+        var app = angular.module("DishManagement",[]);
+
+        //Controller Part
+        app.controller("DishManagementController", function($scope, $http) {
+
+            //
+            $scope.dish; // How to loop through lines though
+            $scope.ingredients;
+
+            //Load the data from server
+            _refreshPageData();
+
+            /*Private Methods */
+
+            //HTTP GET - get the table collection
+            function _refreshPageData() {
+                $http({
+                    method: 'GET',
+                    url: '/unc'
+                }).then(function successCallback(response) {
+                    $scope.dish = response.data.name;
+                    $scope.ingredients = response.data.ingredients;
+
+                }, function errorCallback(response) {
+                    console.log(response.statusText);
+                });
+            }
+
+            function _success(response) {
+                _refreshPageData();
+                _clearForm();
+            }
+
+            function _error(response) {
+                alert(response.data.message || response.statusText);
+            }
+
+        });
+
+    </script>
+</head>
+<body ng-app="DishManagement" ng-controller="DishManagementController">
+<div class="display">
+    <div class="thing">
+        <h1>{{dish}}</h1>
+        <p>{{ingredients}}</p>
+    </div>
+</div>
+</body>
+</html>
