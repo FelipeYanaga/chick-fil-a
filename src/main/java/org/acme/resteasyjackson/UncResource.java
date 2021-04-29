@@ -13,6 +13,8 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class UncResource {
 
+        private final List<Dish> dishes;
+
         @GET
         @Produces(MediaType.APPLICATION_JSON)
         public Dish get() throws IOException {
@@ -24,10 +26,12 @@ public class UncResource {
         @Path("/list")
         @Produces(MediaType.APPLICATION_JSON)
         public List<Dish> getList() throws IOException{
-            Scraper scraper = new Scraper();
-            return scraper.getDishes();
+            return dishes;
         }
 
-        public UncResource(){}
+        public UncResource() throws IOException{
+            Scraper scraper = new Scraper();
+            dishes = scraper.getDishes();
+        }
 
 }

@@ -15,6 +15,7 @@ import org.jsoup.nodes.Element;
 
 
 import javax.sound.midi.SysexMessage;
+import javax.swing.*;
 import javax.swing.text.StyledDocument;
 import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
@@ -62,7 +63,7 @@ public class Scraper{
         String url = "https://dining.unc.edu/locations/chase/?date=2021-04-27";
         HttpClient client = HttpClientBuilder.create().build();
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(2000).setConnectTimeout(2000).setSocketTimeout(2000).build();
+                .setConnectionRequestTimeout(1000).setConnectTimeout(1000).setSocketTimeout(1000).build();
         HttpGet get = new HttpGet(url);
         get.setConfig(requestConfig);
         HttpResponse response = client.execute(get);
@@ -89,7 +90,7 @@ public class Scraper{
         String url = "https://dining.unc.edu/wp-content/themes/nmc_dining/ajax-content/recipe.php?recipe=" + recipeId;
         HttpClient client = HttpClientBuilder.create().build();
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(3000).setConnectTimeout(3000).setSocketTimeout(3000).build();
+                .setConnectionRequestTimeout(2000).setConnectTimeout(2000).setSocketTimeout(2000).build();
         HttpGet get = new HttpGet(url);
         get.setConfig(requestConfig);
         HttpResponse response = client.execute(get);
@@ -98,19 +99,20 @@ public class Scraper{
                 .collect(Collectors.joining("\n"));
 
         Document doc = Jsoup.parse(content);
-        List<Dish> list = new ArrayList<>();
 
         Element dishName = doc.selectFirst("h2");
         Elements links = doc.select("p").select("strong");
 
-        return Dish.of(dishName.ownText(),links.text());
+        Formatter formatter = new Formatter();
+
+        return Dish.of(formatter.formatName(dishName.ownText()),formatter.formatIngredients(links.text()));
     }
 
     public List<Integer> getRecipeIds() throws IOException{
         String url = "https://dining.unc.edu/locations/chase/?date=2021-04-27";
         HttpClient client = HttpClientBuilder.create().build();
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(100).setConnectTimeout(100).setSocketTimeout(100).build();
+                .setConnectionRequestTimeout(1000).setConnectTimeout(1000).setSocketTimeout(1000).build();
         HttpGet get = new HttpGet(url);
         get.setConfig(requestConfig);
         HttpResponse response = client.execute(get);
@@ -134,8 +136,10 @@ public class Scraper{
     public List<Dish> getDishes() throws IOException{
         List<Integer> ids = getRecipeIds();
         List<Dish> dishes = new ArrayList<>();
-        for (int id : ids){
-            dishes.add(getDish(id));
+        int i = 0;
+        while(i < 20){
+            dishes.add(getDish(ids.get(i)));
+            i++;
         }
         return dishes;
     }
