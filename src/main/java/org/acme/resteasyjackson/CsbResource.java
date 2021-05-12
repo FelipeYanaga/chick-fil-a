@@ -1,4 +1,4 @@
-package org.acme.resteasyjackson.db;
+package org.acme.resteasyjackson;
 
 import org.acme.resteasyjackson.Dish;
 import org.acme.resteasyjackson.Scraper;
