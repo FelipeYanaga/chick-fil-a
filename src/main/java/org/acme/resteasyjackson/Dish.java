@@ -7,7 +7,7 @@ public class Dish {
     private String dining;
 
 
-    private Dish(String name, String ingredients){
+    public Dish(String name, String ingredients){
         this.name = name;
         this.ingredients = ingredients;
     }
