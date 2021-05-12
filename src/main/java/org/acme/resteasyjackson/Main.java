@@ -24,7 +24,5 @@ public class Main {
 
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        Scraper scraper = new Scraper();
-        System.out.println(Arrays.toString(scraper.getCsbDishes().toArray()));
     }
 }
