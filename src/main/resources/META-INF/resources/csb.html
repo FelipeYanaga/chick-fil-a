@@ -1,0 +1,55 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>CSB Ingredients</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+        var app = angular.module("DishManagement",[]);
+
+        //Controller Part
+        app.controller("DishManagementController", function($scope, $http) {
+
+            //
+            $scope.dishes = []; // How to loop through lines though
+
+            //Load the data from server
+            _refreshPageData();
+
+            /*Private Methods */
+
+            //HTTP GET - get the table collection
+            function _refreshPageData() {
+                $http({
+                    method: 'GET',
+                    url: '/csb'
+                }).then(function successCallback(response) {
+                    $scope.dishes = response.data;
+
+                }, function errorCallback(response) {
+                    console.log(response.statusText);
+                });
+            }
+
+            function _success(response) {
+                _refreshPageData();
+                _clearForm();
+            }
+
+            function _error(response) {
+                alert(response.data.message || response.statusText);
+            }
+
+        });
+
+    </script>
+</head>
+<body ng-app="DishManagement" ng-controller="DishManagementController">
+<div class="display">
+    <div ng-repeat="i in dishes"class="thing">
+        <h1>{{i.name}}</h1>
+        <p>{{i.ingredients}}</p>
+    </div>
+</div>
+</body>
+</html>

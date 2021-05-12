@@ -6,6 +6,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.jsoup.Jsoup;
@@ -141,6 +142,57 @@ public class Scraper{
             dishes.add(getDish(ids.get(i)));
             i++;
         }
+        return dishes;
+    }
+
+    public Dish getCsbDish(String recipeId) throws IOException{
+        HttpClient client = HttpClientBuilder.create().build();
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(1000).setConnectTimeout(1000).setSocketTimeout(1000).build();
+        HttpGet get = new HttpGet("http://csbmenu.csbsju.edu/mobile/Detail?menu=48173&" + recipeId);
+        HttpResponse response = client.execute(get);
+
+        String content = new BufferedReader(new InputStreamReader(response.getEntity().getContent())).lines().parallel()
+                .collect(Collectors.joining("\n"));
+
+        Document doc = Jsoup.parse(content);
+        Elements ingredientsDiv = doc.getElementsByClass("ingredients").select("p");
+        Elements name = doc.getElementsByClass("nutrition-h2");
+        Element ingredients = ingredientsDiv.first();
+        Element allergens = ingredientsDiv.last();
+        return new Dish.Builder(name.text(), ingredients.text()).allergens(allergens.text()).build();
+    }
+
+    public List<String> getCsbIds() throws IOException{
+        HttpClient client = HttpClientBuilder.create().build();
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(1000).setConnectTimeout(1000).setSocketTimeout(1000).build();
+        HttpGet get = new HttpGet("http://csbmenu.csbsju.edu/mobile/Foods?menu=48173");
+        HttpResponse response = client.execute(get);
+
+        String content = new BufferedReader(new InputStreamReader(response.getEntity().getContent())).lines().parallel()
+                .collect(Collectors.joining("\n"));
+
+        Document doc = Jsoup.parse(content);
+        Elements dishIds = doc.getElementsByClass("food-item-add-link").select("a");
+
+        List<String> recipeIds = new LinkedList<>();
+        for (Element id : dishIds){
+            String a = id.attr("href").toString();
+            String[] splitString = a.split("&");
+            recipeIds.add(splitString[1]);
+        }
+
+        return recipeIds;
+    }
+
+    public List<Dish> getCsbDishes() throws IOException{
+        List<Dish> dishes = new LinkedList<>();
+        List<String> ids  = this.getCsbIds();
+        for (String id : ids){
+            dishes.add(this.getCsbDish(id));
+        }
+
         return dishes;
     }
 
